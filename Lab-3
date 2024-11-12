@@ -1,0 +1,86 @@
+# Import necessary libraries
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn import tree
+
+# Load the Iris dataset
+from sklearn.datasets import load_iris
+iris = load_iris()
+
+# Create a DataFrame
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+df['target'] = iris.target
+
+# Map the target to species names
+df['species'] = df['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})
+
+# 1. Exploratory Data Analysis (EDA)
+
+# Check the structure of the dataset
+print("First few rows of the dataset:")
+print(df.head())
+
+print("\nSummary statistics of the dataset:")
+print(df.describe())
+
+# Check for missing values
+print("\nMissing values in the dataset:")
+print(df.isnull().sum())
+
+# Plotting pairplots to observe relationships between features
+sns.pairplot(df, hue="species")
+plt.show()
+
+# Correlation Matrix
+plt.figure(figsize=(10, 6))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.show()
+
+# 2. Implementing the CART Algorithm (Decision Tree)
+
+# Splitting the dataset into training and testing sets
+X = df.drop(columns=['target', 'species'])
+y = df['target']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Create a Decision Tree Classifier model
+model = DecisionTreeClassifier(criterion='gini', max_depth=3, random_state=42)
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Predict on test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+print("\nAccuracy on test data:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+
+# Confusion Matrix
+plt.figure(figsize=(5,4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues', xticklabels=iris.target_names, yticklabels=iris.target_names)
+plt.title('Confusion Matrix')
+plt.ylabel('Actual')
+plt.xlabel('Predicted')
+plt.show()
+
+# Visualize the Decision Tree
+plt.figure(figsize=(12,8))
+tree.plot_tree(model, feature_names=iris.feature_names, class_names=iris.target_names, filled=True)
+plt.title('Decision Tree Visualization')
+plt.show()
+
+# 3. Classifying a New Sample
+# Define a new sample with measurements: sepal length, sepal width, petal length, petal width
+new_sample = [[5.0, 3.5, 1.5, 0.2]]  # This sample is likely to be 'setosa'
+
+# Predict the class of the new sample
+new_prediction = model.predict(new_sample)
+new_species = iris.target_names[new_prediction[0]]
+print("\nPrediction for the new sample (species):", new_species)
