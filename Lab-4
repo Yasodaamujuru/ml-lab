@@ -1,0 +1,58 @@
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+# 1. Create a sample dataset (Position Level vs Salary)
+data = {
+    'Position Level': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Salary': [45000, 50000, 60000, 80000, 110000, 150000, 200000, 300000, 500000, 1000000]
+}
+
+df = pd.DataFrame(data)
+
+# Display the dataset
+print("Employee Dataset (Position Level vs Salary):")
+print(df)
+
+# 2. Split the dataset into features (X) and target (y)
+X = df[['Position Level']].values  # Independent variable (Position Level)
+y = df['Salary'].values  # Dependent variable (Salary)
+
+# 3. Build a Polynomial Regression model
+
+# Transform the features to include polynomial terms (degree 4 in this case)
+poly_features = PolynomialFeatures(degree=4)
+X_poly = poly_features.fit_transform(X)
+
+# Fit the Polynomial Regression model
+poly_reg_model = LinearRegression()
+poly_reg_model.fit(X_poly, y)
+
+# 4. Visualize the Polynomial Regression results
+
+# Plot the original data points
+plt.scatter(X, y, color='red', label='Actual Salary')
+
+# Plot the Polynomial Regression line
+X_grid = np.arange(min(X), max(X), 0.1)  # More data points for a smooth curve
+X_grid = X_grid.reshape((len(X_grid), 1))
+plt.plot(X_grid, poly_reg_model.predict(poly_features.transform(X_grid)), color='blue', label='Polynomial Fit')
+
+plt.title('Polynomial Regression for Salary Prediction')
+plt.xlabel('Position Level')
+plt.ylabel('Salary')
+plt.legend()
+plt.show()
+
+# 5. Predict the salary for a specific position level
+
+# Define a new position level
+new_position_level = [[6.5]]  # This represents a level between 6 and 7
+
+# Predict the salary for the new position level using the trained model
+predicted_salary = poly_reg_model.predict(poly_features.transform(new_position_level))
+print(f"Predicted Salary for position level {new_position_level[0][0]}: ${predicted_salary[0]:.2f}")
+
