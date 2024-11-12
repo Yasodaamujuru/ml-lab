@@ -1,0 +1,96 @@
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# 1. Load the Boston House Prices dataset from seaborn (or sklearn if available)
+# Load dataset from seaborn
+boston_df = sns.load_dataset('boston')
+
+# Check the first few rows of the dataset
+print("Boston House Prices Dataset:")
+print(boston_df.head())
+
+# Display basic statistics of the dataset
+print("\nSummary statistics:")
+print(boston_df.describe())
+
+# Features (X) and Target (y)
+# Target is the "MEDV" (median value of owner-occupied homes in $1000s)
+X = boston_df.drop(columns=['medv'])  # Features (all columns except MEDV)
+y = boston_df['medv']  # Target (MEDV)
+
+# Split the dataset into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 2. Build a Simple Linear Regression Model (Single Feature)
+
+# Let's use 'RM' (average number of rooms) to predict 'MEDV'
+X_single = X[['rm']]  # 'rm' feature
+
+# Split for simple regression
+X_train_single, X_test_single, y_train_single, y_test_single = train_test_split(X_single, y, test_size=0.2, random_state=42)
+
+# Train the Linear Regression model
+lin_reg_single = LinearRegression()
+lin_reg_single.fit(X_train_single, y_train_single)
+
+# Predict the test set
+y_pred_single = lin_reg_single.predict(X_test_single)
+
+# 3. Evaluate the Simple Linear Regression Model
+
+# Coefficients and intercept
+print(f"\nSimple Linear Regression (using 'RM') Coefficients: {lin_reg_single.coef_}")
+print(f"Intercept: {lin_reg_single.intercept_}")
+
+# Evaluate using Mean Squared Error and R-squared
+mse_single = mean_squared_error(y_test_single, y_pred_single)
+r2_single = r2_score(y_test_single, y_pred_single)
+
+print(f"Mean Squared Error (Simple Linear Regression): {mse_single}")
+print(f"R-squared (Simple Linear Regression): {r2_single}")
+
+# Plot Simple Linear Regression results
+plt.scatter(X_test_single, y_test_single, color='red', label='Actual')
+plt.plot(X_test_single, y_pred_single, color='blue', label='Predicted')
+plt.title('Simple Linear Regression (RM vs MEDV)')
+plt.xlabel('Average Number of Rooms (RM)')
+plt.ylabel('Median Value of Homes (MEDV)')
+plt.legend()
+plt.show()
+
+# 4. Build a Multiple Linear Regression Model (All Features)
+
+# Train the Multiple Linear Regression model using all features
+lin_reg_multiple = LinearRegression()
+lin_reg_multiple.fit(X_train, y_train)
+
+# Predict the test set
+y_pred_multiple = lin_reg_multiple.predict(X_test)
+
+# 5. Evaluate the Multiple Linear Regression Model
+
+# Coefficients and intercept
+print("\nMultiple Linear Regression Coefficients:")
+for idx, col_name in enumerate(X.columns):
+    print(f"{col_name}: {lin_reg_multiple.coef_[idx]}")
+print(f"Intercept: {lin_reg_multiple.intercept_}")
+
+# Evaluate using Mean Squared Error and R-squared
+mse_multiple = mean_squared_error(y_test, y_pred_multiple)
+r2_multiple = r2_score(y_test, y_pred_multiple)
+
+print(f"Mean Squared Error (Multiple Linear Regression): {mse_multiple}")
+print(f"R-squared (Multiple Linear Regression): {r2_multiple}")
+
+# Plot Multiple Regression results (Actual vs Predicted)
+plt.scatter(y_test, y_pred_multiple, color='green')
+plt.title('Multiple Linear Regression (Actual vs Predicted MEDV)')
+plt.xlabel('Actual Median Value of Homes (MEDV)')
+plt.ylabel('Predicted Median Value of Homes (MEDV)')
+plt.show()
